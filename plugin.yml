@@ -1,0 +1,8 @@
+name: FirstPlugin
+main: me.scottspittle.firstplugin.FirstPlugin
+author: ScottSpittle
+version: 1.1
+description: Scott's First plugin xD
+commands:
+  sendme:
+    description: send mofo message...
