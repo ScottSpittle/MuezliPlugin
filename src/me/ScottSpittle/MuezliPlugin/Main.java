@@ -79,14 +79,14 @@ public class Main extends JavaPlugin{
     	if (commandLabel.equalsIgnoreCase("muezlihome")){
     		if(args.length == 0){
 				if(perms.has(player, "muezli.home.home")){
+					Main.player = player;
 					try {
-						Main.player = player;
-						sql.SelectQuery("SELECT * FROM `MuezliPlugin_Homes`");
+						sql.SelectQuery("SELECT * FROM `MuezliPlugin_Homes` WHERE `world_name` = '" + player.getLocation().getWorld().getName() + "' & `player` = '" + player.getDisplayName() + "'", 1);
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
 				}else {
-					//sender.sendMessage(ChatColor.DARK_RED + "No Permission muezli.home.home");
+					sender.sendMessage(ChatColor.DARK_RED + "No Permission muezli.home.home");
 				}
     		}
     		if(args.length == 1){
@@ -98,11 +98,27 @@ public class Main extends JavaPlugin{
     					int z = homeLoc.getBlockZ();
     					int homeYaw = (int) homeLoc.getYaw();
     					int homePitch = (int) homeLoc.getPitch();
-    					try {
-    						sql.insertQuery("INSERT INTO `MuezliPlugin_Homes` (`player`, `world_name`, `x_coord`, `y_coord`, `z_coord`, `yaw`, `pitch`) VALUES ('" + player.getDisplayName() +"','" +  player.getLocation().getWorld().getName() +"','" + x +"','" + y +"','" + z +"','" + homeYaw +"', '" + homePitch + "')");
-    					} catch (SQLException e) {
-    						e.printStackTrace();
-    					}
+						try {
+							sql.SelectQuery("SELECT * FROM `MuezliPlugin_Homes` WHERE `world_name` = '" + player.getLocation().getWorld().getName() + "' & `player` = '" + player.getDisplayName() + "'", 2);
+							if(sql.counter == 1){
+		    					try {
+		    						sql.insertQuery("UPDATE `MuezliPlugin_Homes` SET `x_coord`='" + x +"', `y_coord`='" + y +"', `z_coord`='" + z +"', `yaw`='" + homeYaw +"', `pitch`= '" + homePitch + "'");
+		    						player.sendMessage("Home Location Updated");
+		    					} catch (SQLException e) {
+		    						e.printStackTrace();
+		    					}
+							}else if(sql.counter == 0) {
+		    					try {
+		    						sql.insertQuery("INSERT INTO `MuezliPlugin_Homes` (`player`, `world_name`, `x_coord`, `y_coord`, `z_coord`, `yaw`, `pitch`) VALUES ('" + player.getDisplayName() +"','" +  player.getLocation().getWorld().getName() +"','" + x +"','" + y +"','" + z +"','" + homeYaw +"', '" + homePitch + "')");
+		    						player.sendMessage("Home Created");
+		    					} catch (SQLException e) {
+		    						e.printStackTrace();
+		    					}
+							}
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
     					player.sendMessage(player.getDisplayName() + " " + player.getLocation().getWorld().getName() + " " + x + " " + y + " " + z + " " + homeYaw + " " + homePitch);
     				}else {
     					sender.sendMessage(ChatColor.DARK_RED + "No Permission muezli.home.set");

@@ -23,6 +23,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+
 public class MySQL {
 	public static Main plugin;
     static String user = "scott"; 
@@ -30,7 +33,13 @@ public class MySQL {
     static String url = "jdbc:mysql://localhost:3306/MuezliServerPrivate";
     public boolean yes = true;
     Connection conn = null;
-	int count = 0;
+	int counter = 0;
+	String world_name = null;
+	Double x_coord = null;
+	Double z_coord = null;
+	Double y_coord = null;
+	int yaw = 0;
+	int pitch = 0;
     
     public void create_tablesConnect() throws SQLException {
         Connection conn = DriverManager.getConnection(url, user, pass);
@@ -57,7 +66,7 @@ public class MySQL {
     	}
     }
 
-    public void SelectQuery(String query) throws SQLException{
+    public void SelectQuery(String query, int action) throws SQLException{
     	try {
     		Connection conn = DriverManager.getConnection(url, user, pass);
     		Statement statement = conn.createStatement();
@@ -65,17 +74,27 @@ public class MySQL {
     		ResultSet rs = statement.executeQuery(query);
 
     		while(rs.next()){
-    			Long id = rs.getLong("id");
-    			String player = rs.getString("player");
-    			String world_name = rs.getString("world_name");
-    			//Long x_coord = rs.getLong("x_coord");
-    			//Long z_coord = rs.getLong("z_coord");
-    			//Long y_coord = rs.getLong("y_coord");
-    			//Long yaw = rs.getLong("yaw");
-    			//Long pitch = rs.getLong("pitch");
-    			Main.player.sendMessage("ID: " + id + " Player: " + player + " World: " + world_name + "\n");
+    			counter = counter + 1;
+    			//Long id = rs.getLong("id");
+    			//String player = rs.getString("player");
+    			world_name = rs.getString("world_name");
+    			x_coord = (double) rs.getLong("x_coord");
+    			z_coord = (double) rs.getLong("z_coord");
+    			y_coord = (double) rs.getLong("y_coord");
+    			yaw = (int) rs.getLong("yaw");
+    			pitch = (int) rs.getLong("pitch");
+    		    
+    			//Main.player.sendMessage("ID: " + id + " Player: " + player + " World: " + world_name + "\n");
     			//System.out.println("ID: " + id + " Player: " + player + " World: " + world_name + "\n");
     		}
+			if (counter == 1 && action == 1){
+				Location hLoc = new Location(Bukkit.getWorld(world_name), x_coord, y_coord, z_coord);
+				hLoc.setPitch(pitch);
+				hLoc.setYaw(yaw);
+				Main.player.teleport(hLoc);
+			}else if(counter == 0){
+				Main.player.sendMessage("Im sorry, You havent set a home yet.");
+			}
     	}catch (SQLException s){
     		System.out.println("SQL statement is not executed!");
     	}finally {
