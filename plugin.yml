@@ -1,14 +1,9 @@
 name: MuezliPlugin
 main: me.ScottSpittle.MuezliPlugin.Main
 authors: [ScottSpittle, Carhartjimmy]
-version: 1.1.1
+version: 1.1.2
+softdepend: [Vault]
 description: Muezli's First Plugin
 commands:
-  sendme:
-    description: send mofo message...
-  willieport:
-    description: teleport like a boss.
-  roll:
-    description: roll the dice xD
-  motd:
-    description: roll the dice xD
+  muezlihome:
+    description: test home command

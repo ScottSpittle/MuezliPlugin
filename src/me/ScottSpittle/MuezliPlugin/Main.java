@@ -15,13 +15,17 @@
  */
 package me.ScottSpittle.MuezliPlugin;
 
-import java.util.Random;
+import java.sql.SQLException;
+
+import net.milkbowl.vault.permission.Permission;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin{
@@ -29,15 +33,14 @@ public class Main extends JavaPlugin{
 	public static Main plugin;
 	public final MyBlockListener blockListener = new MyBlockListener();
 	public final MyPlayerListener pl = new MyPlayerListener();
+	public final MySQL sql = new MySQL();
 	public final BukkitLogger blo = new BukkitLogger(this);
+    public static Permission perms = null;
 	
 	
 	@Override
 	public void onDisable(){
-		PluginManager pm = getServer().getPluginManager();
 		blo.enabled(false);
-		pm.addPermission(new Permissions().motd);
-		getServer().getPluginManager().removePermission(new Permissions().motd);
 	}
 
 	@Override
@@ -46,77 +49,67 @@ public class Main extends JavaPlugin{
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(this.blockListener, this);
 		pm.registerEvents(this.pl, this);
-		pm.addPermission(new Permissions().motd);
+        setupPermissions();
 		
 		getConfig().options().copyDefaults(true);
 		saveConfig();
+		
+        if(sql.yes == true) {
+            try {
+            	sql.create_tablesConnect();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }else{
+            System.out.println("[MuezliPlugin_MySQL] Error While Connecting To Database!");
+        }
+        System.out.println("[MuezliPlugin_MySQL] Connected to Database");
 	}
 	
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
-		Player player = (Player) sender;
-		
-		if (commandLabel.equalsIgnoreCase("motd")){
-			if(sender.hasPermission(new Permissions().motd)){
-				player.sendMessage(getConfig().getString("MOTD") + getConfig().getInt("radius"));
-			}else {
-				sender.sendMessage("No Permissions");
-			}
-		}
+    private boolean setupPermissions() {
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+        return perms != null;
+    }
+    
+    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+    	Player player = (Player) sender;
 
-		if (commandLabel.equalsIgnoreCase("roll")){
-			Random object = new Random();
-			int muezliInt;
-
-			for(int counter = 1; counter <= 1; counter++) {
-				muezliInt =1+object.nextInt(2);
-				if (muezliInt == 1){
-					player.sendMessage("Heads!");
-				}else if(muezliInt == 2){
-					player.sendMessage("Tails!");
+    	if (commandLabel.equalsIgnoreCase("muezlihome")){
+    		if(args.length == 0){
+				if(perms.has(player, "muezli.home.home")){
+					try {
+						sql.SelectQuery("SELECT * FROM `MuezliPlugin_Homes`");
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}else {
+					//sender.sendMessage(ChatColor.DARK_RED + "No Permission muezli.home.home");
 				}
-			}
-		}
-
-		if (commandLabel.equalsIgnoreCase("sendme") || commandLabel.equalsIgnoreCase("sm")){
-			if (args.length ==0){
-				//sendme = 0 args ... /heal scott = 1 args
-				player.sendMessage(ChatColor.BLUE + "willies " + getConfig().getInt("radius"));
-			} else if (args.length == 1) {
-				if (player.getServer().getPlayer(args[0]) != null){
-					Player targetPlayer = player.getServer().getPlayer(args[0]);
-					targetPlayer.sendMessage(ChatColor.BLUE + player.getDisplayName() + " Sent you willies!");
-					player.sendMessage(ChatColor.RED + "You sent willies to " + targetPlayer.getDisplayName());
-				} else {
-					player.sendMessage(ChatColor.BLUE + "Player Is not online, you cannot send them willies");
-				}
-			}
-		}
-		if (commandLabel.equalsIgnoreCase("willieport")){
-			if (args.length == 0){
-				player.sendMessage(ChatColor.DARK_RED + "You Didn't Specify a player #noob!");
-			} else if (args.length == 1){
-				if (player.getServer().getPlayer(args[0]) != null){
-					Player targetPlayer = player.getServer().getPlayer(args[0]);
-					Location targetPlayerLocation = targetPlayer.getLocation();
-					player.teleport(targetPlayerLocation);
-					player.sendMessage(ChatColor.GREEN + "Successfully teleported.");
-				} else {
-					player.sendMessage(ChatColor.BLUE + "Player Is not online, you cannot tp to them");
-				}
-			} else if (args.length == 2){
-				if (player.getServer().getPlayer(args[0]) != null && player.getServer().getPlayer(args[1]) != null ){
-					Player targetPlayer1 = player.getServer().getPlayer(args[0]);
-					Player targetPlayer2 = player.getServer().getPlayer(args[1]);
-					Location targetPlayerLocation = targetPlayer2.getLocation();
-					targetPlayer1.teleport(targetPlayerLocation);
-					targetPlayer1.sendMessage(ChatColor.GREEN + "You have Teleported to " + targetPlayer2.getDisplayName());
-					targetPlayer2.sendMessage(ChatColor.GREEN + targetPlayer1.getDisplayName() + " Teleported to you");
-				} else {
-					player.sendMessage(ChatColor.BLUE + "One or more of those players is not online... tuttut");
-				}
-			}
-		}
-
-		return false;
-	}
+    		}
+    		if(args.length == 1){
+    			if (args[0].equalsIgnoreCase("set")) {
+    				if(perms.has(player, "muezli.home.set")){
+    					Location homeLoc = player.getLocation();    					
+    					int x = homeLoc.getBlockX();
+    					int y = homeLoc.getBlockY();
+    					int z = homeLoc.getBlockZ();
+    					int homeYaw = (int) homeLoc.getYaw();
+    					int homePitch = (int) homeLoc.getPitch();
+    					try {
+    						sql.insertQuery("INSERT INTO `MuezliPlugin_Homes` (`player`, `world_name`, `x_coord`, `y_coord`, `z_coord`, `yaw`, `pitch`) VALUES ('" + player.getDisplayName() +"','" +  player.getLocation().getWorld().getName() +"','" + x +"','" + y +"','" + z +"','" + homeYaw +"', '" + homePitch + "')");
+    					} catch (SQLException e) {
+    						e.printStackTrace();
+    					}
+    					player.sendMessage(player.getDisplayName() + " " + player.getLocation().getWorld().getName() + " " + x + " " + y + " " + z + " " + homeYaw + " " + homePitch);
+    				}else {
+    					sender.sendMessage(ChatColor.DARK_RED + "No Permission muezli.home.set");
+    				}
+    			} else {
+    				player.sendMessage("Invalid Command");
+    			}
+    		}
+    	}
+    	return false;
+    }
 }
