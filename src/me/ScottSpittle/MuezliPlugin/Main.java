@@ -36,6 +36,7 @@ public class Main extends JavaPlugin{
 	public final MySQL sql = new MySQL();
 	public final BukkitLogger blo = new BukkitLogger(this);
     public static Permission perms = null;
+    public static Player player = null;
 	
 	
 	@Override
@@ -79,6 +80,7 @@ public class Main extends JavaPlugin{
     		if(args.length == 0){
 				if(perms.has(player, "muezli.home.home")){
 					try {
+						Main.player = player;
 						sql.SelectQuery("SELECT * FROM `MuezliPlugin_Homes`");
 					} catch (SQLException e) {
 						e.printStackTrace();
