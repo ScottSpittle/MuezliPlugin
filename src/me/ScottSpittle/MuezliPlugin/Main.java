@@ -31,8 +31,8 @@ public class Main extends JavaPlugin{
 
 	public final Logger logger = Logger.getLogger("Minecraft");
 	public static Main plugin;
-	public final MyBlockListener blockListener = new MyBlockListener(this);
-	public final MyPlayerListener pl = new MyPlayerListener(this);
+	public final MyBlockListener blockListener = new MyBlockListener();
+	public final MyPlayerListener pl = new MyPlayerListener();
 	
 	@Override
 	public void onDisable(){

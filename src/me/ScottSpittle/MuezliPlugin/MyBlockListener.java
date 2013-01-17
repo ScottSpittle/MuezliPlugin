@@ -12,10 +12,6 @@ public class MyBlockListener implements Listener {
 
 	public static Main plugin;
 	public static Material[] blacklist = {Material.BEDROCK, Material.DIAMOND_BLOCK};
-
-	public MyBlockListener(Main instance) {
-		plugin = instance;
-	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockPlace(BlockPlaceEvent event) {
