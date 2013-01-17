@@ -15,6 +15,7 @@
  */
 package me.ScottSpittle.MuezliPlugin;
 
+import java.util.Random;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -31,7 +32,8 @@ public class Main extends JavaPlugin{
 	public final Logger logger = Logger.getLogger("Minecraft");
 	public static Main plugin;
 	public final MyBlockListener blockListener = new MyBlockListener(this);
-
+	public final MyPlayerListener pl = new MyPlayerListener(this);
+	
 	@Override
 	public void onDisable(){
 		PluginDescriptionFile pdfFile = this.getDescription();
@@ -43,11 +45,27 @@ public class Main extends JavaPlugin{
 		PluginManager pm = getServer().getPluginManager();
 		PluginDescriptionFile pdfFile = this.getDescription();
 		pm.registerEvents(this.blockListener, this);
+		pm.registerEvents(this.pl, this);
 		this.logger.info(pdfFile.getName() + " Version " + pdfFile.getVersion() + " Has Been Enabled");
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		Player player = (Player) sender;
+
+		if (commandLabel.equalsIgnoreCase("roll")){
+			Random object = new Random();
+			int muezliInt;
+
+			for(int counter = 1; counter <= 1; counter++) {
+				muezliInt =1+object.nextInt(2);
+				if (muezliInt == 1){
+					player.sendMessage("Heads!");
+				}else if(muezliInt == 2){
+					player.sendMessage("Tails!");
+				}
+			}
+		}
+
 		if (commandLabel.equalsIgnoreCase("sendme") || commandLabel.equalsIgnoreCase("sm")){
 			if (args.length ==0){
 				//sendme = 0 args ... /heal scott = 1 args
@@ -87,6 +105,7 @@ public class Main extends JavaPlugin{
 				}
 			}
 		}
+
 		return false;
 	}
 }
