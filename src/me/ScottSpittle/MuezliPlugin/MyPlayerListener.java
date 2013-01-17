@@ -13,7 +13,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class MyPlayerListener implements Listener {
 	
 	public static Main plugin;
-	int explosionRadius = plugin.getConfig().getInt("radius");
 		
 	@EventHandler
 	public void onPlayerJoin (PlayerJoinEvent event){
@@ -31,7 +30,8 @@ public class MyPlayerListener implements Listener {
 				Block block = player.getTargetBlock(null, 50);
 				Location location = block.getLocation();
 				World world = player.getWorld();
-				world.createExplosion(location, explosionRadius);
+				world.createExplosion(location, 5);
+				player.sendMessage(ChatColor.BLUE + "willies");
 			}else if(blockID == 2){
 				Block block = player.getTargetBlock(null, 50);
 				Location location = block.getLocation();
@@ -41,5 +41,4 @@ public class MyPlayerListener implements Listener {
 		}
 		
 	}
-
 }

@@ -16,43 +16,52 @@
 package me.ScottSpittle.MuezliPlugin;
 
 import java.util.Random;
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin{
 
-	public final Logger logger = Logger.getLogger("Minecraft");
 	public static Main plugin;
 	public final MyBlockListener blockListener = new MyBlockListener();
 	public final MyPlayerListener pl = new MyPlayerListener();
+	public final BukkitLogger blo = new BukkitLogger(this);
+	
 	
 	@Override
 	public void onDisable(){
-		PluginDescriptionFile pdfFile = this.getDescription();
-		this.logger.info(pdfFile.getName() + " Has Been Disabled");
+		PluginManager pm = getServer().getPluginManager();
+		blo.enabled(false);
+		pm.addPermission(new Permissions().motd);
+		getServer().getPluginManager().removePermission(new Permissions().motd);
 	}
 
 	@Override
 	public void onEnable(){
+		blo.enabled(true);
 		PluginManager pm = getServer().getPluginManager();
-		PluginDescriptionFile pdfFile = this.getDescription();
 		pm.registerEvents(this.blockListener, this);
 		pm.registerEvents(this.pl, this);
+		pm.addPermission(new Permissions().motd);
+		
 		getConfig().options().copyDefaults(true);
 		saveConfig();
-		this.logger.info(pdfFile.getName() + " Version " + pdfFile.getVersion() + " Has Been Enabled");
 	}
-
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		Player player = (Player) sender;
+		
+		if (commandLabel.equalsIgnoreCase("motd")){
+			if(sender.hasPermission(new Permissions().motd)){
+				player.sendMessage(getConfig().getString("MOTD") + getConfig().getInt("radius"));
+			}else {
+				sender.sendMessage("No Permissions");
+			}
+		}
 
 		if (commandLabel.equalsIgnoreCase("roll")){
 			Random object = new Random();
@@ -71,7 +80,7 @@ public class Main extends JavaPlugin{
 		if (commandLabel.equalsIgnoreCase("sendme") || commandLabel.equalsIgnoreCase("sm")){
 			if (args.length ==0){
 				//sendme = 0 args ... /heal scott = 1 args
-				player.sendMessage(ChatColor.BLUE + "willies");
+				player.sendMessage(ChatColor.BLUE + "willies " + getConfig().getInt("radius"));
 			} else if (args.length == 1) {
 				if (player.getServer().getPlayer(args[0]) != null){
 					Player targetPlayer = player.getServer().getPlayer(args[0]);

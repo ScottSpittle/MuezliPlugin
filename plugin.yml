@@ -10,3 +10,5 @@ commands:
     description: teleport like a boss.
   roll:
     description: roll the dice xD
+  motd:
+    description: roll the dice xD
