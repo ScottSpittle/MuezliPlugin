@@ -46,6 +46,8 @@ public class Main extends JavaPlugin{
 		PluginDescriptionFile pdfFile = this.getDescription();
 		pm.registerEvents(this.blockListener, this);
 		pm.registerEvents(this.pl, this);
+		getConfig().options().copyDefaults(true);
+		saveConfig();
 		this.logger.info(pdfFile.getName() + " Version " + pdfFile.getVersion() + " Has Been Enabled");
 	}
 
