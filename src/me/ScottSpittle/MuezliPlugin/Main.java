@@ -15,12 +15,8 @@
  */
 package me.ScottSpittle.MuezliPlugin;
 
-import java.sql.SQLException;
-
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,14 +27,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin{
 
 	public static Main plugin;
-	public final MyBlockListener blockListener = new MyBlockListener();
 	public final MyPlayerListener pl = new MyPlayerListener();
 	public final MySQL sql = new MySQL();
-	public final BukkitLogger blo = new BukkitLogger(this);
+	public final BukkitLogger blo = new BukkitLogger();
     public static Permission perms = null;
     public static Player player = null;
-	
-	
+    public boolean isPlayer = false;
+
 	@Override
 	public void onDisable(){
 		blo.enabled(false);
@@ -46,88 +41,38 @@ public class Main extends JavaPlugin{
 
 	@Override
 	public void onEnable(){
-		blo.enabled(true);
+		plugin = this; //set plugin to this instance.
+		blo.enabled(true); //run BukkitLogger class on enable.
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(this.blockListener, this);
 		pm.registerEvents(this.pl, this);
         setupPermissions();
-		
+        
 		getConfig().options().copyDefaults(true);
 		saveConfig();
-		
-        if(sql.yes == true) {
-            try {
-            	sql.create_tablesConnect();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }else{
-            System.out.println("[MuezliPlugin_MySQL] Error While Connecting To Database!");
-        }
-        System.out.println("[MuezliPlugin_MySQL] Connected to Database");
 	}
 	
-    private boolean setupPermissions() {
-        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        perms = rsp.getProvider();
-        return perms != null;
-    }
-    
-    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
-    	Player player = (Player) sender;
-
-    	if (commandLabel.equalsIgnoreCase("muezlihome")){
-    		if(args.length == 0){
-				if(perms.has(player, "muezli.home.home")){
-					Main.player = player;
-					try {
-						sql.SelectQuery("SELECT * FROM `MuezliPlugin_Homes` WHERE `world_name` = '" + player.getLocation().getWorld().getName() + "' & `player` = '" + player.getDisplayName() + "'", 1);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-				}else {
-					sender.sendMessage(ChatColor.DARK_RED + "No Permission muezli.home.home");
+	private boolean setupPermissions() {
+		RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+		perms = rsp.getProvider();
+		return perms != null;
+	}
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+		if(sender instanceof Player){
+			isPlayer = true;
+		}
+		if(commandLabel.equalsIgnoreCase("muezli")){
+			if(isPlayer){
+				Player player = (Player) sender;
+				if(perms.has(player, "muezli.muezli")){
+					sql.getConfigValues();
+				}else{
+					player.sendMessage("you don't have permission to use that command");
 				}
-    		}
-    		if(args.length == 1){
-    			if (args[0].equalsIgnoreCase("set")) {
-    				if(perms.has(player, "muezli.home.set")){
-    					Location homeLoc = player.getLocation();    					
-    					int x = homeLoc.getBlockX();
-    					int y = homeLoc.getBlockY();
-    					int z = homeLoc.getBlockZ();
-    					int homeYaw = (int) homeLoc.getYaw();
-    					int homePitch = (int) homeLoc.getPitch();
-						try {
-							sql.SelectQuery("SELECT * FROM `MuezliPlugin_Homes` WHERE `world_name` = '" + player.getLocation().getWorld().getName() + "' & `player` = '" + player.getDisplayName() + "'", 2);
-							if(sql.counter == 1){
-		    					try {
-		    						sql.insertQuery("UPDATE `MuezliPlugin_Homes` SET `x_coord`='" + x +"', `y_coord`='" + y +"', `z_coord`='" + z +"', `yaw`='" + homeYaw +"', `pitch`= '" + homePitch + "'");
-		    						player.sendMessage("Home Location Updated");
-		    					} catch (SQLException e) {
-		    						e.printStackTrace();
-		    					}
-							}else if(sql.counter == 0) {
-		    					try {
-		    						sql.insertQuery("INSERT INTO `MuezliPlugin_Homes` (`player`, `world_name`, `x_coord`, `y_coord`, `z_coord`, `yaw`, `pitch`) VALUES ('" + player.getDisplayName() +"','" +  player.getLocation().getWorld().getName() +"','" + x +"','" + y +"','" + z +"','" + homeYaw +"', '" + homePitch + "')");
-		    						player.sendMessage("Home Created");
-		    					} catch (SQLException e) {
-		    						e.printStackTrace();
-		    					}
-							}
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-    					player.sendMessage(player.getDisplayName() + " " + player.getLocation().getWorld().getName() + " " + x + " " + y + " " + z + " " + homeYaw + " " + homePitch);
-    				}else {
-    					sender.sendMessage(ChatColor.DARK_RED + "No Permission muezli.home.set");
-    				}
-    			} else {
-    				player.sendMessage("Invalid Command");
-    			}
-    		}
-    	}
-    	return false;
-    }
+			}else{
+				sender.sendMessage("You must be a player");
+			}
+		}
+		return false;
+	}
 }
