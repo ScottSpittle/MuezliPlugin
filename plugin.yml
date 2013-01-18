@@ -1,9 +1,9 @@
 name: MuezliPlugin
 main: me.ScottSpittle.MuezliPlugin.Main
 authors: [ScottSpittle, Carhartjimmy]
-version: 1.1.2
+version: 1.0
 softdepend: [Vault]
 description: Muezli's First Plugin
 commands:
-  muezlihome:
-    description: test home command
+  muezli:
+    description: command
