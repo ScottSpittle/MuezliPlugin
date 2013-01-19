@@ -60,7 +60,7 @@ public class Main extends JavaPlugin{
 	}
 
     public void checkConfig(){
-		//Creates the config file ..
+		//Checks config file has SQL Connection informaion..
         if(getConfig().getString("SQLConnection.user").equalsIgnoreCase("") || getConfig().getString("SQLConnection.pass").equalsIgnoreCase("") || getConfig().getString("SQLConnection.url").equalsIgnoreCase("")){
 			blo.logger.severe("[MuezliPlugin] SQL Connection inofrmation has not been set.");
             Bukkit.getPluginManager().disablePlugin(this);
