@@ -24,6 +24,11 @@ public class BukkitLogger {
 
 	public static Main plugin;
 	
+	public BukkitLogger(Main instance){
+		plugin = instance;
+
+	}
+	
 	public final Logger logger = Logger.getLogger("Minecraft");
 	
 	public void enabled(boolean enabled){
