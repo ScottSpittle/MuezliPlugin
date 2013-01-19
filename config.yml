@@ -1,4 +1,4 @@
 SQLConnection:
-  user: scott
-  pass: ',08@u!<J1|JQg7};SVjewi!CP96X~Y'
-  url: jdbc:mysql://localhost:3306/MuezliServerPrivate
+  user: #Example MuezliPlugin
+  pass: ''
+  url: #Example jdbc:mysql://localhost:3306/MuezliServerPrivate
