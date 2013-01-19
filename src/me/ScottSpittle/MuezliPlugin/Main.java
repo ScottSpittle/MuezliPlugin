@@ -19,6 +19,7 @@ import java.io.File;
 
 import net.milkbowl.vault.permission.Permission;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -49,6 +50,7 @@ public class Main extends JavaPlugin{
 		pm.registerEvents(this.pl, this); //register player events
         setupPermissions(); //using vault setting up permissions.
         createConfig(); //create config if it doesn't exsist
+        checkConfig(); //check config
 	}
 	
 	private boolean setupPermissions() {
@@ -56,16 +58,24 @@ public class Main extends JavaPlugin{
 		perms = rsp.getProvider();
 		return perms != null;
 	}
-	
+
+    public void checkConfig(){
+		//Creates the config file ..
+        if(getConfig().getString("SQLConnection.user").equalsIgnoreCase("") || getConfig().getString("SQLConnection.pass").equalsIgnoreCase("") || getConfig().getString("SQLConnection.url").equalsIgnoreCase("")){
+			blo.logger.severe("[MuezliPlugin] SQL Connection inofrmation has not been set.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+	}
 	public void createConfig(){
 		//Creates the config file ..
 		File file = new File(getDataFolder()+File.separator+"config.yml");
 		if(!file.exists()){
-			System.out.println("[MuezliPlugin] Creating default config file ...");
+			blo.logger.info("[MuezliPlugin] Creating default config file ...");
 			saveDefaultConfig();
-			System.out.println("[MuezliPlugin] Config created successfully!");
+			blo.logger.info("[MuezliPlugin] Config created successfully!");
 		}else {
-			System.out.println("[MuezliPlugin] Config Already Exsists!");
+			blo.logger.info("[MuezliPlugin] Config Already Exsists!");
 		}
 	}
 	
