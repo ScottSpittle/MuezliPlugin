@@ -15,25 +15,48 @@
  */
 package me.ScottSpittle.MuezliPlugin;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.sql.Connection;
-import me.ScottSpittle.MuezliPlugin.Main;
+public class MySQL  {
+	public static Main plugin;
+	protected Connection db;
+	protected String uri;
+	protected String user;
+	protected String password;
+	
+	public MySQL(Main instance){
+		plugin = instance;
+	}
 
-public class MySQL {
-    static String user = null; 
-    static String pass = null; 
-    static String url = null;
-    public boolean yes = true;
-    Connection conn = null;
+	public void connectMySQL() {
+		try {
+			FileConfiguration config = plugin.getConfig();
 
-	public void getConfigValues() {
-		FileConfiguration config = Main.plugin.getConfig();
-		
-		String user = config.getString("SQLConnection.user");
-		String pass = config.getString("SQLConnection.pass");
-		String url = config.getString("SQLConnection.url");
-		
-    	System.out.println(user + pass + url);
+			this.uri = config.getString("SQLConnection.url");
+			this.user = config.getString("SQLConnection.user");
+			this.password = config.getString("SQLConnection.pass");
+
+			this.connect();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally{
+			plugin.disablePlugin();
+		}
+	}
+
+	protected void checkConnection() throws SQLException {
+		if (!this.db.isValid(3)) {
+			plugin.getLogger().info("Lost connection with sql server. Reconnecting.");
+			this.connect();
+		}
+	}
+
+	protected final void connect() throws SQLException {
+		plugin.getLogger().info("[MuezliPlugin-SQL] Connecting to database...");
+		db = DriverManager.getConnection("jdbc:" + uri, user, password);
 	}
 } 
