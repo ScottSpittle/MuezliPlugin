@@ -31,7 +31,7 @@ public class Main extends JavaPlugin{
 
 	public static Main plugin;
 	public final MyPlayerListener pl = new MyPlayerListener();
-	public final MySQL sql = new MySQL();
+	public final MySQL sql = new MySQL(this);
 	public final BukkitLogger blo = new BukkitLogger(this);
     public static Permission perms = null;
     public static Player player = null;
@@ -51,6 +51,7 @@ public class Main extends JavaPlugin{
         setupPermissions(); //using vault setting up permissions.
         createConfig(); //create config if it doesn't exsist
         checkConfig(); //check config
+        sql.connectMySQL();
 	}
 	
 	private boolean setupPermissions() {
@@ -62,8 +63,8 @@ public class Main extends JavaPlugin{
     public void checkConfig(){
 		//Checks config file has SQL Connection informaion..
         if(getConfig().getString("SQLConnection.user").equalsIgnoreCase("") || getConfig().getString("SQLConnection.pass").equalsIgnoreCase("") || getConfig().getString("SQLConnection.url").equalsIgnoreCase("")){
-			blo.logger.severe("[MuezliPlugin] SQL Connection inofrmation has not been set.");
-            Bukkit.getPluginManager().disablePlugin(this);
+        	getLogger().severe("[MuezliPlugin] SQL Connection inofrmation has not been set.");
+        	disablePlugin();
             return;
         }
 	}
@@ -71,12 +72,16 @@ public class Main extends JavaPlugin{
 		//Creates the config file ..
 		File file = new File(getDataFolder()+File.separator+"config.yml");
 		if(!file.exists()){
-			blo.logger.info("[MuezliPlugin] Creating default config file ...");
+			getLogger().info("[MuezliPlugin] Creating default config file ...");
 			saveDefaultConfig();
-			blo.logger.info("[MuezliPlugin] Config created successfully!");
+			getLogger().info("[MuezliPlugin] Config created successfully!");
 		}else {
-			blo.logger.info("[MuezliPlugin] Config Already Exsists!");
+			getLogger().info("[MuezliPlugin] Config Already Exsists!");
 		}
+	}
+	
+	public void disablePlugin(){
+        Bukkit.getPluginManager().disablePlugin(this);
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
@@ -87,7 +92,7 @@ public class Main extends JavaPlugin{
 			if(isPlayer){
 				Player player = (Player) sender;
 				if(perms.has(player, "muezli.muezli")){
-					sql.getConfigValues();
+					//sql.getConfigValues();
 				}else{
 					player.sendMessage("you don't have permission to use that command");
 				}
