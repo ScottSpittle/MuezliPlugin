@@ -34,7 +34,7 @@ public class MyPlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerQuit (PlayerQuitEvent e){
 		//Player player = event.getPlayer();
-		Main.plugin.getServer().broadcastMessage(e.getPlayer().getName() + "Fucked off..");
+		Main.plugin.getServer().broadcastMessage(e.getPlayer().getName() + " Fucked off..");
 	}
 
 	@EventHandler
