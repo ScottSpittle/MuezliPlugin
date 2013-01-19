@@ -15,6 +15,8 @@
  */
 package me.ScottSpittle.MuezliPlugin;
 
+import java.io.File;
+
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.command.Command;
@@ -29,7 +31,7 @@ public class Main extends JavaPlugin{
 	public static Main plugin;
 	public final MyPlayerListener pl = new MyPlayerListener();
 	public final MySQL sql = new MySQL();
-	public final BukkitLogger blo = new BukkitLogger();
+	public final BukkitLogger blo = new BukkitLogger(this);
     public static Permission perms = null;
     public static Player player = null;
     public boolean isPlayer = false;
@@ -43,18 +45,28 @@ public class Main extends JavaPlugin{
 	public void onEnable(){
 		plugin = this; //set plugin to this instance.
 		blo.enabled(true); //run BukkitLogger class on enable.
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(this.pl, this);
-        setupPermissions();
-        
-		getConfig().options().copyDefaults(true);
-		saveConfig();
+		PluginManager pm = getServer().getPluginManager(); //register with the plugin manager
+		pm.registerEvents(this.pl, this); //register player events
+        setupPermissions(); //using vault setting up permissions.
+        createConfig(); //create config if it doesn't exsist
 	}
 	
 	private boolean setupPermissions() {
 		RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
 		perms = rsp.getProvider();
 		return perms != null;
+	}
+	
+	public void createConfig(){
+		//Creates the config file ..
+		File file = new File(getDataFolder()+File.separator+"config.yml");
+		if(!file.exists()){
+			System.out.println("[MuezliPlugin] Creating default config file ...");
+			saveDefaultConfig();
+			System.out.println("[MuezliPlugin] Config created successfully!");
+		}else {
+			System.out.println("[MuezliPlugin] Config Already Exsists!");
+		}
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
