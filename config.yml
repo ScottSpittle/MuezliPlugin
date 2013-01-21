@@ -1,4 +1,7 @@
 SQLConnection:
-  user: #Example MuezliPlugin
+# user: Muezli
+  user: ''
+# pass: Password
   pass: ''
-  url: #Example jdbc:mysql://localhost:3306/MuezliServerPrivate
+# url: jdbc:mysql://localhost:3306/DatabaseName
+  url: ''

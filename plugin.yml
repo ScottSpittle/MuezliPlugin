@@ -1,9 +1,15 @@
-name: MuezliPlugin
+name: MuezliHomes
 main: me.ScottSpittle.MuezliPlugin.Main
 authors: [ScottSpittle, Carhartjimmy]
 version: 1.0
 softdepend: [Vault]
 description: Muezli's First Plugin
 commands:
-  muezli:
-    description: command
+  homehelp:
+    description: Help about this plugin.
+    usage: |
+           /<command> - Teleport home
+           /<command> [Player] - Teleport to anothers home
+           /<command> set - Set home
+  home:
+    description: Teleport player to thier home.
