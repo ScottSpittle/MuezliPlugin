@@ -1,7 +1,7 @@
 name: MuezliHomes
 main: me.ScottSpittle.MuezliPlugin.Main
 authors: [ScottSpittle, Carhartjimmy]
-version: 1.0
+version: 1.0.1
 softdepend: [Vault]
 description: Muezli's First Plugin
 commands:

@@ -1,7 +1,7 @@
 SQLConnection:
-# user: Muezli
+# user: Database username
   user: ''
-# pass: Password
+# pass: Database Password
   pass: ''
-# url: jdbc:mysql://localhost:3306/DatabaseName
+# url: mysql://localhost:3306/DatabaseName
   url: ''
